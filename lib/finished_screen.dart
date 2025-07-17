@@ -1,6 +1,8 @@
-import 'package:first_flutter_project/finished_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'second_screen.dart';
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -28,13 +30,13 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const SecondPage(title: 'Second Page'),
+      home: const PizzaDone(title: 'Nice Toppings!'),
     );
   }
 }
 
-class SecondPage extends StatefulWidget {
-  const SecondPage({super.key, required this.title});
+class PizzaDone extends StatefulWidget {
+  const PizzaDone({super.key, required this.title});
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -47,50 +49,11 @@ class SecondPage extends StatefulWidget {
 
   final String title;
 
-  
-
   @override
-  State<SecondPage> createState() => _MySecondPageState();
+  State<PizzaDone> createState() => _PizzaDonePage();
 }
 
-class ToppingButton extends StatefulWidget {
-  final String label;
-  const ToppingButton({required this.label, super.key});
-
-  @override
-  State<ToppingButton> createState() => _ToppingButtonState();
-}
-
-class  _ToppingButtonState extends State<ToppingButton> {
-  bool _isSelected = false;
-
-  @override
-  Widget build(BuildContext context)
-  {
-    return ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isSelected = !_isSelected;
-                            }
-                          );
-                        }, 
-                      
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: 
-                            _isSelected? Colors.blue : Colors.white,
-                          foregroundColor: 
-                            _isSelected? Colors.white : Colors.black,
-                          side: const BorderSide(color: Colors.black12),
-
-                        ),
-                        child:
-                          Text(widget.label),
-
-                        );
-  }
-}
-
-class _MySecondPageState extends State<SecondPage> {
+class _PizzaDonePage extends State<PizzaDone> {
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -128,74 +91,11 @@ class _MySecondPageState extends State<SecondPage> {
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              child: Column(
-                children: [
-                  Image(
-                    image: NetworkImage("https://slice-menu-assets-prod.imgix.net/15035/1646979120_41495185f2"),
-                    width: 400,
-                    height: 400
-                  ),
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Pepperoni"),
-                          ToppingButton(label: "Sausage"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Pineapple"),
-                          ToppingButton(label: "Ham"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Bacon"),
-                          ToppingButton(label: "Peppers"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Olives"),
-                          ToppingButton(label: "Anchovies"),
-                        ],
-                      ),
-                    ],
-                  )
-                ]
-              ),
-              
-            ),
-            Container(
-              margin: const EdgeInsets.all(20),
-              child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              
-              children:[ ElevatedButton(
-                
-                onPressed: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PizzaDone(title: 'Nice Toppings!'))
-                );
-                },
-                child: Text("Next")
-              ),
-              
-              ]
-            )
-            )
+            
+             
             
           ],
-          
         ),
-        
       ),
     );
   }
