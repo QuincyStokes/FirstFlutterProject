@@ -1,6 +1,6 @@
 import 'package:first_flutter_project/finished_screen.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,51 +46,75 @@ class SecondPage extends StatefulWidget {
   // always marked "final".
 
   final String title;
-
-  
-
   @override
   State<SecondPage> createState() => _MySecondPageState();
 }
 
 class ToppingButton extends StatefulWidget {
   final String label;
-  const ToppingButton({required this.label, super.key});
+  final bool initiallyOn;
+  final ValueChanged<bool> onChanged;
+  const ToppingButton({
+    required this.label,
+    required this.initiallyOn,
+    required this.onChanged,
+    super.key,
+  });
 
   @override
   State<ToppingButton> createState() => _ToppingButtonState();
 }
 
-class  _ToppingButtonState extends State<ToppingButton> {
-  bool _isSelected = false;
+class _ToppingButtonState extends State<ToppingButton> {
+  late bool _isOn;
 
   @override
-  Widget build(BuildContext context)
-  {
+  void initState() {
+    super.initState();
+    _isOn = widget.initiallyOn;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isSelected = !_isSelected;
-                            }
-                          );
-                        }, 
-                      
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: 
-                            _isSelected? Colors.blue : Colors.white,
-                          foregroundColor: 
-                            _isSelected? Colors.white : Colors.black,
-                          side: const BorderSide(color: Colors.black12),
-
-                        ),
-                        child:
-                          Text(widget.label),
-
-                        );
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _isOn ? Colors.blue : Colors.white,
+        foregroundColor: _isOn ? Colors.white : Colors.black,
+        side: const BorderSide(color: Colors.black12),
+      ),
+      onPressed: () => {
+        setState(() => _isOn = !_isOn),
+        widget.onChanged(_isOn),
+      },
+      child: Text(widget.label),
+    );
   }
 }
 
 class _MySecondPageState extends State<SecondPage> {
+  final List<String> toppings = [
+    'Pepperoni',
+    'Sausage',
+    'Pineapple',
+    'Ham',
+    'Bacon',
+    'Peppers',
+    'Olives',
+    'Anchovies',
+  ];
+
+  final Set<String> _selected = {}; //track which toppings we select
+
+  void _onToppingToggle(String topping, bool isOn) {
+    setState(() {
+      if (isOn) {
+        _selected.add(topping);
+      } else {
+        _selected.remove(topping);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -132,70 +156,67 @@ class _MySecondPageState extends State<SecondPage> {
               child: Column(
                 children: [
                   Image(
-                    image: NetworkImage("https://slice-menu-assets-prod.imgix.net/15035/1646979120_41495185f2"),
+                    image: NetworkImage(
+                      "https://slice-menu-assets-prod.imgix.net/15035/1646979120_41495185f2",
+                    ),
                     width: 400,
-                    height: 400
+                    height: 400,
                   ),
                   Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Pepperoni"),
-                          ToppingButton(label: "Sausage"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Pineapple"),
-                          ToppingButton(label: "Ham"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Bacon"),
-                          ToppingButton(label: "Peppers"),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ToppingButton(label: "Olives"),
-                          ToppingButton(label: "Anchovies"),
-                        ],
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: toppings.map((t) {
+                          return ToppingButton(
+                            label: t,
+                            initiallyOn: _selected.contains(t),
+                            onChanged: (isOn) => _onToppingToggle(t, isOn),
+                          );
+                        }).toList(),
                       ),
                     ],
-                  )
-                ]
+                  ),
+                ],
               ),
-              
             ),
             Container(
               margin: const EdgeInsets.all(20),
               child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              
-              children:[ ElevatedButton(
-                
-                onPressed: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PizzaDone(title: 'Nice Toppings!'))
-                );
-                },
-                child: Text("Next")
+                mainAxisAlignment: MainAxisAlignment.end,
+
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      print('⏩ Next button pressed');
+                      try {
+                        final docRef = await FirebaseFirestore.instance
+                            .collection('orders')
+                            .add({
+                              'toppings': _selected.toList(),
+                              'timestamp': FieldValue.serverTimestamp(),
+                            });
+                        print('✅ Order saved: ${docRef.id}');
+                      } catch (e, st) {
+                        print('❌ Firestore error: $e\n$st');
+                      }
+
+                      // now navigate
+                      print('⏩ About to navigate');
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              SummaryPage(selectedToppings: _selected.toList()),
+                        ),
+                      );
+                    },
+                    child: const Text("Next"),
+                  ),
+                ],
               ),
-              
-              ]
-            )
-            )
-            
+            ),
           ],
-          
         ),
-        
       ),
     );
   }

@@ -1,5 +1,6 @@
+import 'package:first_flutter_project/main.dart';
 import 'package:flutter/material.dart';
-import 'second_screen.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -90,10 +91,54 @@ class _PizzaDonePage extends State<PizzaDone> {
           // action in the IDE, or press "p" in the console), to see the
           // wireframe for each widget.
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            
-             
-            
+          children: <Widget>[],
+        ),
+      ),
+    );
+  }
+}
+
+class SummaryPage extends StatelessWidget {
+  final List<String> selectedToppings;
+
+  const SummaryPage({required this.selectedToppings, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Nice Toppings!')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You selected: ${selectedToppings.join(', ')}. Sounds delicious!',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+
+            Container(
+              margin: const EdgeInsets.all(20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              MyHomePage(title: 'Pizza Topping Simulator!'),
+                        ),
+                      );
+                    },
+                    child: Text("Restart"),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
